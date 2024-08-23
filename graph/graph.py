@@ -125,14 +125,6 @@ class Graph:
 
         return visited
 
-    # class DistNode:
-    #     def __init__(self, node, distance) -> None:
-    #         self.node = node
-    #         self.distance = distance
-
-    #     def __lt__(self, other):
-    #         return self.node.distance < other.distance
-
     def dijkstra(self, start:int, end: int)-> Tuple[int, List[int]]:
         """
         https://www.youtube.com/watch?v=EFg3u_E6eHU
