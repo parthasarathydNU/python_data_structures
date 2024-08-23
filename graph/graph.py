@@ -1,12 +1,13 @@
-from typing import List, Tuple
+from typing import List, Tuple, Set
 from collections import deque
 import heapq
 
 class Graph:
 
-    def __init__(self) -> None:
+    def __init__(self, directed = False) -> None:
         self.graph = {}
         self.weighted_edges = {}
+        self.directed = directed
 
     def add_vertex(self, vertex: int) -> None:
         if vertex in self.graph:
@@ -39,13 +40,14 @@ class Graph:
         # avoid adding duplicates
         if b not in self.graph[a]:
             self.graph[a].append(b)
-
-        if a not in self.graph[b]:   
-            self.graph[b].append(a)
-
-        # Weights can be updated even if the edges are present    
         self._add_weighted_edge(a, b, weight)
-        self._add_weighted_edge(b, a, weight)
+
+        if not self.directed:
+            if a not in self.graph[b]:   
+                self.graph[b].append(a)
+
+            # Weights can be updated even if the edges are present    
+            self._add_weighted_edge(b, a, weight)
 
     def remove_edge(self, a: int, b: int) -> None:
 
@@ -190,4 +192,30 @@ class Graph:
 
 
         return float('inf'), []
-   
+    
+    def _topSort_helper(self, node: int, visited: Set[int], temp_visited: Set[int], stack: List[int]):
+        if node in temp_visited:
+            raise Exception("This graph contains a cycle!")
+        
+        if node not in visited:
+            temp_visited.add(node)
+            for neighbour, _ in self.get_neighbors(node):
+                self._topSort_helper(neighbour, visited, temp_visited, stack)
+            visited.add(node)
+            temp_visited.remove(node)
+            stack.append(node)
+
+    def topological_sort(self) -> List[int]:
+        """
+        This method returns the topological sort of the current graph.
+        If the graph is not a Directed Acyclic Graph, it raises an exception.
+        """
+        visited = set()
+        temp_visited = set()
+        stack = []
+
+        for node in self.graph:
+            if node not in visited:
+                self._topSort_helper(node, visited, temp_visited, stack)
+
+        return stack[::-1]  # Reverse the stack to get the correct order
